@@ -31,5 +31,7 @@ public class Main extends Application {
         stage.setTitle("FTP Client Software");
         stage.setScene(new Scene(root));
         stage.show();
+
+        controller.setLocalFileList(controller.getFiles("F:\\"));
     }
 }

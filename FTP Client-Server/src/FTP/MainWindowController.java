@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MainWindowController {
+public class MainWindowController{
 
     @FXML
     private TextField host;
@@ -22,7 +22,7 @@ public class MainWindowController {
     private TextField userPass;
 
     @FXML
-    private TextField port;
+    private TextField Port;
 
     @FXML
     private Button connectButton;
@@ -86,13 +86,28 @@ public class MainWindowController {
 
     private Main main;
 
+    public static String selectedFileName;
+    private String workingDirectory;
+
+    Client client;
+
     @FXML
     void connectCalled(ActionEvent event) {
         String hostAddress = host.getText();
         String user = userName.getText();
         String password = userPass.getText();
-        int portNo = Integer.parseInt(port.getText());
-        Client client = new Client(hostAddress,portNo,user,password);
+        int  portNo = Integer.parseInt(Port.getText());
+
+        if(client!=null)
+        {
+            try{
+            client.network.socket.close();
+            }catch(Exception e){
+                System.out.println("In connectCalled:" + e);
+            }
+        }
+        client = new Client(hostAddress,portNo,user,password);
+        client.setServerPath();
     }
     void init(){
         localDir.setEditable(false);
@@ -105,6 +120,7 @@ public class MainWindowController {
         serverFileList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
+
     public List<File> getFiles(String fileLocation){
         List<File> files = new ArrayList<>();
         File file = new File(fileLocation);
@@ -113,7 +129,8 @@ public class MainWindowController {
     }
     public void setLocalFileList(List<File> fileList)
     {
-        localDir.setText(fileList.get(0).getParent());
+        workingDirectory = fileList.get(0).getParent();
+        localDir.setText(workingDirectory);
         localFileList.getItems().clear();
         for(File f : fileList)
         {
@@ -141,6 +158,11 @@ public class MainWindowController {
             if(f.isDirectory())
                 setLocalFileList(getFiles(dir));
         }
+        if(click.getClickCount() == 1)
+        {
+            selectedFileName = localDir.getText() + "\\" +
+                    localFileList.getSelectionModel().getSelectedItem();
+        }
     }
 
     @FXML
@@ -155,6 +177,14 @@ public class MainWindowController {
             if(f.isDirectory())
                 setServerFileList(getFiles(dir));
         }
+        if(click.getClickCount() == 1)
+        {
+            selectedFileName = serverDir.getText() + "\\" +
+                    serverFileList.getSelectionModel().getSelectedItem();
+        }
+    }
+    public String getSelectedFileName(){
+        return selectedFileName;
     }
 
     public void setMain(Main main){
